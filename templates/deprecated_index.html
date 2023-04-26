@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Sudoku</title>
+  <link rel="icon" href="/static/sudoku_icon.png">
+  <link type="text/css" rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body class="text-align-center">
+  <h1>Sudoku Solver using Backtracking Search</h1>
+  <div>
+    <form method="POST">
+      <select id="puzzlename" name="puzzlename" class="classic">
+        {% for name in puzzleNames %}
+        <option value="{{ name['value'] }}" {{ 'selected' if name['selected'] }}>{{ name['label'] if name['label'] else
+          "Select Puzzle..." }}</option>
+        {% endfor %}
+      </select>
+      <button id="solve_btn" type="submit">Solve!</button>
+    </form>
+  </div>
+  <h3></h3>
+  <div class="text-align-webkit-center">
+    <table id="grid">
+      <tr>
+        <td><span id="C11">{{ selectedPuzzle[0][0] if selectedPuzzle and selectedPuzzle[0][0] }}</span></td>
+        <td><span id="C12">{{ selectedPuzzle[0][1] if selectedPuzzle and selectedPuzzle[0][1] }}</span></td>
+        <td><span id="C13">{{ selectedPuzzle[0][2] if selectedPuzzle and selectedPuzzle[0][2] }}</span></td>
+        <td><span id="C14">{{ selectedPuzzle[0][3] if selectedPuzzle and selectedPuzzle[0][3] }}</span></td>
+        <td><span id="C15">{{ selectedPuzzle[0][4] if selectedPuzzle and selectedPuzzle[0][4] }}</span></td>
+        <td><span id="C16">{{ selectedPuzzle[0][5] if selectedPuzzle and selectedPuzzle[0][5] }}</span></td>
+        <td><span id="C17">{{ selectedPuzzle[0][6] if selectedPuzzle and selectedPuzzle[0][6] }}</span></td>
+        <td><span id="C18">{{ selectedPuzzle[0][7] if selectedPuzzle and selectedPuzzle[0][7] }}</span></td>
+        <td><span id="C19">{{ selectedPuzzle[0][8] if selectedPuzzle and selectedPuzzle[0][8] }}</span></td>
+      </tr>
+      <tr>
+        <td><span id="C21">{{ selectedPuzzle[1][0] if selectedPuzzle and selectedPuzzle[1][0] }}</span></td>
+        <td><span id="C22">{{ selectedPuzzle[1][1] if selectedPuzzle and selectedPuzzle[1][1] }}</span></td>
+        <td><span id="C23">{{ selectedPuzzle[1][2] if selectedPuzzle and selectedPuzzle[1][2] }}</span></td>
+        <td><span id="C24">{{ selectedPuzzle[1][3] if selectedPuzzle and selectedPuzzle[1][3] }}</span></td>
+        <td><span id="C25">{{ selectedPuzzle[1][4] if selectedPuzzle and selectedPuzzle[1][4] }}</span></td>
+        <td><span id="C26">{{ selectedPuzzle[1][5] if selectedPuzzle and selectedPuzzle[1][5] }}</span></td>
+        <td><span id="C27">{{ selectedPuzzle[1][6] if selectedPuzzle and selectedPuzzle[1][6] }}</span></td>
+        <td><span id="C28">{{ selectedPuzzle[1][7] if selectedPuzzle and selectedPuzzle[1][7] }}</span></td>
+        <td><span id="C29">{{ selectedPuzzle[1][8] if selectedPuzzle and selectedPuzzle[1][8] }}</span></td>
+      </tr>
+      <tr>
+        <td><span id="C31">{{ selectedPuzzle[2][0] if selectedPuzzle and selectedPuzzle[2][0] }}</span></td>
+        <td><span id="C32">{{ selectedPuzzle[2][1] if selectedPuzzle and selectedPuzzle[2][1] }}</span></td>
+        <td><span id="C33">{{ selectedPuzzle[2][2] if selectedPuzzle and selectedPuzzle[2][2] }}</span></td>
+        <td><span id="C34">{{ selectedPuzzle[2][3] if selectedPuzzle and selectedPuzzle[2][3] }}</span></td>
+        <td><span id="C35">{{ selectedPuzzle[2][4] if selectedPuzzle and selectedPuzzle[2][4] }}</span></td>
+        <td><span id="C36">{{ selectedPuzzle[2][5] if selectedPuzzle and selectedPuzzle[2][5] }}</span></td>
+        <td><span id="C37">{{ selectedPuzzle[2][6] if selectedPuzzle and selectedPuzzle[2][6] }}</span></td>
+        <td><span id="C38">{{ selectedPuzzle[2][7] if selectedPuzzle and selectedPuzzle[2][7] }}</span></td>
+        <td><span id="C39">{{ selectedPuzzle[2][8] if selectedPuzzle and selectedPuzzle[2][8] }}</span></td>
+      </tr>
+      <tr>
+        <td><span id="C41">{{ selectedPuzzle[3][0] if selectedPuzzle and selectedPuzzle[3][0] }}</span></td>
+        <td><span id="C42">{{ selectedPuzzle[3][1] if selectedPuzzle and selectedPuzzle[3][1] }}</span></td>
+        <td><span id="C43">{{ selectedPuzzle[3][2] if selectedPuzzle and selectedPuzzle[3][2] }}</span></td>
+        <td><span id="C44">{{ selectedPuzzle[3][3] if selectedPuzzle and selectedPuzzle[3][3] }}</span></td>
+        <td><span id="C45">{{ selectedPuzzle[3][4] if selectedPuzzle and selectedPuzzle[3][4] }}</span></td>
+        <td><span id="C46">{{ selectedPuzzle[3][5] if selectedPuzzle and selectedPuzzle[3][5] }}</span></td>
+        <td><span id="C47">{{ selectedPuzzle[3][6] if selectedPuzzle and selectedPuzzle[3][6] }}</span></td>
+        <td><span id="C48">{{ selectedPuzzle[3][7] if selectedPuzzle and selectedPuzzle[3][7] }}</span></td>
+        <td><span id="C49">{{ selectedPuzzle[3][8] if selectedPuzzle and selectedPuzzle[3][8] }}</span></td>
+      </tr>
+      <tr>
+        <td><span id="C51">{{ selectedPuzzle[4][0] if selectedPuzzle and selectedPuzzle[4][0] }}</span></td>
+        <td><span id="C52">{{ selectedPuzzle[4][1] if selectedPuzzle and selectedPuzzle[4][1] }}</span></td>
+        <td><span id="C53">{{ selectedPuzzle[4][2] if selectedPuzzle and selectedPuzzle[4][2] }}</span></td>
+        <td><span id="C54">{{ selectedPuzzle[4][3] if selectedPuzzle and selectedPuzzle[4][3] }}</span></td>
+        <td><span id="C55">{{ selectedPuzzle[4][4] if selectedPuzzle and selectedPuzzle[4][4] }}</span></td>
+        <td><span id="C56">{{ selectedPuzzle[4][5] if selectedPuzzle and selectedPuzzle[4][5] }}</span></td>
+        <td><span id="C57">{{ selectedPuzzle[4][6] if selectedPuzzle and selectedPuzzle[4][6] }}</span></td>
+        <td><span id="C58">{{ selectedPuzzle[4][7] if selectedPuzzle and selectedPuzzle[4][7] }}</span></td>
+        <td><span id="C59">{{ selectedPuzzle[4][8] if selectedPuzzle and selectedPuzzle[4][8] }}</span></td>
+      </tr>
+      <tr>
+        <td><span id="C61">{{ selectedPuzzle[5][0] if selectedPuzzle and selectedPuzzle[5][0] }}</span></td>
+        <td><span id="C62">{{ selectedPuzzle[5][1] if selectedPuzzle and selectedPuzzle[5][1] }}</span></td>
+        <td><span id="C63">{{ selectedPuzzle[5][2] if selectedPuzzle and selectedPuzzle[5][2] }}</span></td>
+        <td><span id="C64">{{ selectedPuzzle[5][3] if selectedPuzzle and selectedPuzzle[5][3] }}</span></td>
+        <td><span id="C65">{{ selectedPuzzle[5][4] if selectedPuzzle and selectedPuzzle[5][4] }}</span></td>
+        <td><span id="C66">{{ selectedPuzzle[5][5] if selectedPuzzle and selectedPuzzle[5][5] }}</span></td>
+        <td><span id="C67">{{ selectedPuzzle[5][6] if selectedPuzzle and selectedPuzzle[5][6] }}</span></td>
+        <td><span id="C68">{{ selectedPuzzle[5][7] if selectedPuzzle and selectedPuzzle[5][7] }}</span></td>
+        <td><span id="C69">{{ selectedPuzzle[5][8] if selectedPuzzle and selectedPuzzle[5][8] }}</span></td>
+      </tr>
+      <tr>
+        <td><span id="C71">{{ selectedPuzzle[6][0] if selectedPuzzle and selectedPuzzle[6][0] }}</span></td>
+        <td><span id="C72">{{ selectedPuzzle[6][1] if selectedPuzzle and selectedPuzzle[6][1] }}</span></td>
+        <td><span id="C73">{{ selectedPuzzle[6][2] if selectedPuzzle and selectedPuzzle[6][2] }}</span></td>
+        <td><span id="C74">{{ selectedPuzzle[6][3] if selectedPuzzle and selectedPuzzle[6][3] }}</span></td>
+        <td><span id="C75">{{ selectedPuzzle[6][4] if selectedPuzzle and selectedPuzzle[6][4] }}</span></td>
+        <td><span id="C76">{{ selectedPuzzle[6][5] if selectedPuzzle and selectedPuzzle[6][5] }}</span></td>
+        <td><span id="C77">{{ selectedPuzzle[6][6] if selectedPuzzle and selectedPuzzle[6][6] }}</span></td>
+        <td><span id="C78">{{ selectedPuzzle[6][7] if selectedPuzzle and selectedPuzzle[6][7] }}</span></td>
+        <td><span id="C79">{{ selectedPuzzle[6][8] if selectedPuzzle and selectedPuzzle[6][8] }}</span></td>
+      </tr>
+      <tr>
+        <td><span id="C81">{{ selectedPuzzle[7][0] if selectedPuzzle and selectedPuzzle[7][0] }}</span></td>
+        <td><span id="C82">{{ selectedPuzzle[7][1] if selectedPuzzle and selectedPuzzle[7][1] }}</span></td>
+        <td><span id="C83">{{ selectedPuzzle[7][2] if selectedPuzzle and selectedPuzzle[7][2] }}</span></td>
+        <td><span id="C84">{{ selectedPuzzle[7][3] if selectedPuzzle and selectedPuzzle[7][3] }}</span></td>
+        <td><span id="C85">{{ selectedPuzzle[7][4] if selectedPuzzle and selectedPuzzle[7][4] }}</span></td>
+        <td><span id="C86">{{ selectedPuzzle[7][5] if selectedPuzzle and selectedPuzzle[7][5] }}</span></td>
+        <td><span id="C87">{{ selectedPuzzle[7][6] if selectedPuzzle and selectedPuzzle[7][6] }}</span></td>
+        <td><span id="C88">{{ selectedPuzzle[7][7] if selectedPuzzle and selectedPuzzle[7][7] }}</span></td>
+        <td><span id="C89">{{ selectedPuzzle[7][8] if selectedPuzzle and selectedPuzzle[7][8] }}</span></td>
+      </tr>
+      <tr>
+        <td><span id="C91">{{ selectedPuzzle[8][0] if selectedPuzzle and selectedPuzzle[8][0] }}</span></td>
+        <td><span id="C92">{{ selectedPuzzle[8][1] if selectedPuzzle and selectedPuzzle[8][1] }}</span></td>
+        <td><span id="C93">{{ selectedPuzzle[8][2] if selectedPuzzle and selectedPuzzle[8][2] }}</span></td>
+        <td><span id="C94">{{ selectedPuzzle[8][3] if selectedPuzzle and selectedPuzzle[8][3] }}</span></td>
+        <td><span id="C95">{{ selectedPuzzle[8][4] if selectedPuzzle and selectedPuzzle[8][4] }}</span></td>
+        <td><span id="C96">{{ selectedPuzzle[8][5] if selectedPuzzle and selectedPuzzle[8][5] }}</span></td>
+        <td><span id="C97">{{ selectedPuzzle[8][6] if selectedPuzzle and selectedPuzzle[8][6] }}</span></td>
+        <td><span id="C98">{{ selectedPuzzle[8][7] if selectedPuzzle and selectedPuzzle[8][7] }}</span></td>
+        <td><span id="C99">{{ selectedPuzzle[8][8] if selectedPuzzle and selectedPuzzle[8][8] }}</span></td>
+      </tr>
+    </table>
+  </div>
+  {% if solvedPuzzle %}
+  <h2>Solution</h2>
+  <div class="text-align-webkit-center">
+    <table id="grid">
+      <tr>
+        <td style="color:{{ solvedPuzzle['C11']['color'] }}">
+          <span id="C11">{{ solvedPuzzle['C11']['value'] if solvedPuzzle and solvedPuzzle['C11']['value'] }}</span>
+          {% for value in failedValues['C11'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C12']['color'] }}">
+          <span id="C12">{{ solvedPuzzle['C12']['value'] if solvedPuzzle and solvedPuzzle['C12']['value'] }}</span>
+          {% for value in failedValues['C12'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C13']['color'] }}">
+          <span id="C13">{{ solvedPuzzle['C13']['value'] if solvedPuzzle and solvedPuzzle['C13']['value'] }}</span>
+          {% for value in failedValues['C13'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C14']['color'] }}">
+          <span id="C14">{{ solvedPuzzle['C14']['value'] if solvedPuzzle and solvedPuzzle['C14']['value'] }}</span>
+          {% for value in failedValues['C14'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C15']['color'] }}">
+          <span id="C15">{{ solvedPuzzle['C15']['value'] if solvedPuzzle and solvedPuzzle['C15']['value'] }}</span>
+          {% for value in failedValues['C15'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C16']['color'] }}">
+          <span id="C16">{{ solvedPuzzle['C16']['value'] if solvedPuzzle and solvedPuzzle['C16']['value'] }}</span>
+          {% for value in failedValues['C16'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C17']['color'] }}">
+          <span id="C17">{{ solvedPuzzle['C17']['value'] if solvedPuzzle and solvedPuzzle['C17']['value'] }}</span>
+          {% for value in failedValues['C17'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C18']['color'] }}">
+          <span id="C18">{{ solvedPuzzle['C18']['value'] if solvedPuzzle and solvedPuzzle['C18']['value'] }}</span>
+          {% for value in failedValues['C18'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C19']['color'] }}">
+          <span id="C19">{{ solvedPuzzle['C19']['value'] if solvedPuzzle and solvedPuzzle['C19']['value'] }}</span>
+          {% for value in failedValues['C19'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <td style="color:{{ solvedPuzzle['C21']['color'] }}">
+          <span id="C21">{{ solvedPuzzle['C21']['value'] if solvedPuzzle and solvedPuzzle['C21']['value'] }}</span>
+          {% for value in failedValues['C21'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C22']['color'] }}">
+          <span id="C22">{{ solvedPuzzle['C22']['value'] if solvedPuzzle and solvedPuzzle['C22']['value'] }}</span>
+          {% for value in failedValues['C22'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C23']['color'] }}">
+          <span id="C23">{{ solvedPuzzle['C23']['value'] if solvedPuzzle and solvedPuzzle['C23']['value'] }}</span>
+          {% for value in failedValues['C23'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C24']['color'] }}">
+          <span id="C24">{{ solvedPuzzle['C24']['value'] if solvedPuzzle and solvedPuzzle['C24']['value'] }}</span>
+          {% for value in failedValues['C24'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C25']['color'] }}">
+          <span id="C25">{{ solvedPuzzle['C25']['value'] if solvedPuzzle and solvedPuzzle['C25']['value'] }}</span>
+          {% for value in failedValues['C25'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C26']['color'] }}">
+          <span id="C26">{{ solvedPuzzle['C26']['value'] if solvedPuzzle and solvedPuzzle['C26']['value'] }}</span>
+          {% for value in failedValues['C26'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C27']['color'] }}">
+          <span id="C27">{{ solvedPuzzle['C27']['value'] if solvedPuzzle and solvedPuzzle['C27']['value'] }}</span>
+          {% for value in failedValues['C27'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C28']['color'] }}">
+          <span id="C28">{{ solvedPuzzle['C28']['value'] if solvedPuzzle and solvedPuzzle['C28']['value'] }}</span>
+          {% for value in failedValues['C28'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C29']['color'] }}">
+          <span id="C29">{{ solvedPuzzle['C29']['value'] if solvedPuzzle and solvedPuzzle['C29']['value'] }}</span>
+          {% for value in failedValues['C29'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <td style="color:{{ solvedPuzzle['C31']['color'] }}">
+          <span id="C31">{{ solvedPuzzle['C31']['value'] if solvedPuzzle and solvedPuzzle['C31']['value'] }}</span>
+          {% for value in failedValues['C31'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C32']['color'] }}">
+          <span id="C32">{{ solvedPuzzle['C32']['value'] if solvedPuzzle and solvedPuzzle['C32']['value'] }}</span>
+          {% for value in failedValues['C32'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C33']['color'] }}">
+          <span id="C33">{{ solvedPuzzle['C33']['value'] if solvedPuzzle and solvedPuzzle['C33']['value'] }}</span>
+          {% for value in failedValues['C33'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C34']['color'] }}">
+          <span id="C34">{{ solvedPuzzle['C34']['value'] if solvedPuzzle and solvedPuzzle['C34']['value'] }}</span>
+          {% for value in failedValues['C34'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C35']['color'] }}">
+          <span id="C35">{{ solvedPuzzle['C35']['value'] if solvedPuzzle and solvedPuzzle['C35']['value'] }}</span>
+          {% for value in failedValues['C35'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C36']['color'] }}">
+          <span id="C36">{{ solvedPuzzle['C36']['value'] if solvedPuzzle and solvedPuzzle['C36']['value'] }}</span>
+          {% for value in failedValues['C36'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C37']['color'] }}">
+          <span id="C37">{{ solvedPuzzle['C37']['value'] if solvedPuzzle and solvedPuzzle['C37']['value'] }}</span>
+          {% for value in failedValues['C37'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C38']['color'] }}">
+          <span id="C38">{{ solvedPuzzle['C38']['value'] if solvedPuzzle and solvedPuzzle['C38']['value'] }}</span>
+          {% for value in failedValues['C38'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C39']['color'] }}">
+          <span id="C39">{{ solvedPuzzle['C39']['value'] if solvedPuzzle and solvedPuzzle['C39']['value'] }}</span>
+          {% for value in failedValues['C39'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <td style="color:{{ solvedPuzzle['C41']['color'] }}">
+          <span id="C41">{{ solvedPuzzle['C41']['value'] if solvedPuzzle and solvedPuzzle['C41']['value'] }}</span>
+          {% for value in failedValues['C41'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C42']['color'] }}">
+          <span id="C42">{{ solvedPuzzle['C42']['value'] if solvedPuzzle and solvedPuzzle['C42']['value'] }}</span>
+          {% for value in failedValues['C42'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C43']['color'] }}">
+          <span id="C43">{{ solvedPuzzle['C43']['value'] if solvedPuzzle and solvedPuzzle['C43']['value'] }}</span>
+          {% for value in failedValues['C43'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C44']['color'] }}">
+          <span id="C44">{{ solvedPuzzle['C44']['value'] if solvedPuzzle and solvedPuzzle['C44']['value'] }}</span>
+          {% for value in failedValues['C44'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C45']['color'] }}">
+          <span id="C45">{{ solvedPuzzle['C45']['value'] if solvedPuzzle and solvedPuzzle['C45']['value'] }}</span>
+          {% for value in failedValues['C45'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C46']['color'] }}">
+          <span id="C46">{{ solvedPuzzle['C46']['value'] if solvedPuzzle and solvedPuzzle['C46']['value'] }}</span>
+          {% for value in failedValues['C46'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C47']['color'] }}">
+          <span id="C47">{{ solvedPuzzle['C47']['value'] if solvedPuzzle and solvedPuzzle['C47']['value'] }}</span>
+          {% for value in failedValues['C47'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C48']['color'] }}">
+          <span id="C48">{{ solvedPuzzle['C48']['value'] if solvedPuzzle and solvedPuzzle['C48']['value'] }}</span>
+          {% for value in failedValues['C48'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C49']['color'] }}">
+          <span id="C49">{{ solvedPuzzle['C49']['value'] if solvedPuzzle and solvedPuzzle['C49']['value'] }}</span>
+          {% for value in failedValues['C49'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <td style="color:{{ solvedPuzzle['C51']['color'] }}">
+          <span id="C51">{{ solvedPuzzle['C51']['value'] if solvedPuzzle and solvedPuzzle['C51']['value'] }}</span>
+          {% for value in failedValues['C51'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C52']['color'] }}">
+          <span id="C52">{{ solvedPuzzle['C52']['value'] if solvedPuzzle and solvedPuzzle['C52']['value'] }}</span>
+          {% for value in failedValues['C52'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C53']['color'] }}">
+          <span id="C53">{{ solvedPuzzle['C53']['value'] if solvedPuzzle and solvedPuzzle['C53']['value'] }}</span>
+          {% for value in failedValues['C53'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C54']['color'] }}">
+          <span id="C54">{{ solvedPuzzle['C54']['value'] if solvedPuzzle and solvedPuzzle['C54']['value'] }}</span>
+          {% for value in failedValues['C54'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C55']['color'] }}">
+          <span id="C55">{{ solvedPuzzle['C55']['value'] if solvedPuzzle and solvedPuzzle['C55']['value'] }}</span>
+          {% for value in failedValues['C55'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C56']['color'] }}">
+          <span id="C56">{{ solvedPuzzle['C56']['value'] if solvedPuzzle and solvedPuzzle['C56']['value'] }}</span>
+          {% for value in failedValues['C56'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C57']['color'] }}">
+          <span id="C57">{{ solvedPuzzle['C57']['value'] if solvedPuzzle and solvedPuzzle['C57']['value'] }}</span>
+          {% for value in failedValues['C57'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C58']['color'] }}">
+          <span id="C58">{{ solvedPuzzle['C58']['value'] if solvedPuzzle and solvedPuzzle['C58']['value'] }}</span>
+          {% for value in failedValues['C58'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C59']['color'] }}">
+          <span id="C59">{{ solvedPuzzle['C59']['value'] if solvedPuzzle and solvedPuzzle['C59']['value'] }}</span>
+          {% for value in failedValues['C59'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <td style="color:{{ solvedPuzzle['C61']['color'] }}">
+          <span id="C61">{{ solvedPuzzle['C61']['value'] if solvedPuzzle and solvedPuzzle['C61']['value'] }}</span>
+          {% for value in failedValues['C61'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C62']['color'] }}">
+          <span id="C62">{{ solvedPuzzle['C62']['value'] if solvedPuzzle and solvedPuzzle['C62']['value'] }}</span>
+          {% for value in failedValues['C62'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C63']['color'] }}">
+          <span id="C63">{{ solvedPuzzle['C63']['value'] if solvedPuzzle and solvedPuzzle['C63']['value'] }}</span>
+          {% for value in failedValues['C63'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C64']['color'] }}">
+          <span id="C64">{{ solvedPuzzle['C64']['value'] if solvedPuzzle and solvedPuzzle['C64']['value'] }}</span>
+          {% for value in failedValues['C64'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C65']['color'] }}">
+          <span id="C65">{{ solvedPuzzle['C65']['value'] if solvedPuzzle and solvedPuzzle['C65']['value'] }}</span>
+          {% for value in failedValues['C65'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C66']['color'] }}">
+          <span id="C66">{{ solvedPuzzle['C66']['value'] if solvedPuzzle and solvedPuzzle['C66']['value'] }}</span>
+          {% for value in failedValues['C66'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C67']['color'] }}">
+          <span id="C67">{{ solvedPuzzle['C67']['value'] if solvedPuzzle and solvedPuzzle['C67']['value'] }}</span>
+          {% for value in failedValues['C67'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C68']['color'] }}">
+          <span id="C68">{{ solvedPuzzle['C68']['value'] if solvedPuzzle and solvedPuzzle['C68']['value'] }}</span>
+          {% for value in failedValues['C68'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C69']['color'] }}">
+          <span id="C69">{{ solvedPuzzle['C69']['value'] if solvedPuzzle and solvedPuzzle['C69']['value'] }}</span>
+          {% for value in failedValues['C69'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <td style="color:{{ solvedPuzzle['C71']['color'] }}">
+          <span id="C71">{{ solvedPuzzle['C71']['value'] if solvedPuzzle and solvedPuzzle['C71']['value'] }}</span>
+          {% for value in failedValues['C71'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C72']['color'] }}">
+          <span id="C72">{{ solvedPuzzle['C72']['value'] if solvedPuzzle and solvedPuzzle['C72']['value'] }}</span>
+          {% for value in failedValues['C72'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C73']['color'] }}">
+          <span id="C73">{{ solvedPuzzle['C73']['value'] if solvedPuzzle and solvedPuzzle['C73']['value'] }}</span>
+          {% for value in failedValues['C73'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C74']['color'] }}">
+          <span id="C74">{{ solvedPuzzle['C74']['value'] if solvedPuzzle and solvedPuzzle['C74']['value'] }}</span>
+          {% for value in failedValues['C74'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C75']['color'] }}">
+          <span id="C75">{{ solvedPuzzle['C75']['value'] if solvedPuzzle and solvedPuzzle['C75']['value'] }}</span>
+          {% for value in failedValues['C75'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C76']['color'] }}">
+          <span id="C76">{{ solvedPuzzle['C76']['value'] if solvedPuzzle and solvedPuzzle['C76']['value'] }}</span>
+          {% for value in failedValues['C76'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C77']['color'] }}">
+          <span id="C77">{{ solvedPuzzle['C77']['value'] if solvedPuzzle and solvedPuzzle['C77']['value'] }}</span>
+          {% for value in failedValues['C77'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C78']['color'] }}">
+          <span id="C78">{{ solvedPuzzle['C78']['value'] if solvedPuzzle and solvedPuzzle['C78']['value'] }}</span>
+          {% for value in failedValues['C78'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C79']['color'] }}">
+          <span id="C79">{{ solvedPuzzle['C79']['value'] if solvedPuzzle and solvedPuzzle['C79']['value'] }}</span>
+          {% for value in failedValues['C79'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <td style="color:{{ solvedPuzzle['C81']['color'] }}">
+          <span id="C81">{{ solvedPuzzle['C81']['value'] if solvedPuzzle and solvedPuzzle['C81']['value'] }}</span>
+          {% for value in failedValues['C81'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C82']['color'] }}">
+          <span id="C82">{{ solvedPuzzle['C82']['value'] if solvedPuzzle and solvedPuzzle['C82']['value'] }}</span>
+          {% for value in failedValues['C82'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C83']['color'] }}">
+          <span id="C83">{{ solvedPuzzle['C83']['value'] if solvedPuzzle and solvedPuzzle['C83']['value'] }}</span>
+          {% for value in failedValues['C83'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C84']['color'] }}">
+          <span id="C84">{{ solvedPuzzle['C84']['value'] if solvedPuzzle and solvedPuzzle['C84']['value'] }}</span>
+          {% for value in failedValues['C84'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C85']['color'] }}">
+          <span id="C85">{{ solvedPuzzle['C85']['value'] if solvedPuzzle and solvedPuzzle['C85']['value'] }}</span>
+          {% for value in failedValues['C85'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C86']['color'] }}">
+          <span id="C86">{{ solvedPuzzle['C86']['value'] if solvedPuzzle and solvedPuzzle['C86']['value'] }}</span>
+          {% for value in failedValues['C86'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C87']['color'] }}">
+          <span id="C87">{{ solvedPuzzle['C87']['value'] if solvedPuzzle and solvedPuzzle['C87']['value'] }}</span>
+          {% for value in failedValues['C87'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C88']['color'] }}">
+          <span id="C88">{{ solvedPuzzle['C88']['value'] if solvedPuzzle and solvedPuzzle['C88']['value'] }}</span>
+          {% for value in failedValues['C88'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C89']['color'] }}">
+          <span id="C89">{{ solvedPuzzle['C89']['value'] if solvedPuzzle and solvedPuzzle['C89']['value'] }}</span>
+          {% for value in failedValues['C89'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+      </tr>
+      <tr>
+        <td style="color:{{ solvedPuzzle['C91']['color'] }}">
+          <span id="C91">{{ solvedPuzzle['C91']['value'] if solvedPuzzle and solvedPuzzle['C91']['value'] }}</span>
+          {% for value in failedValues['C91'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C92']['color'] }}">
+          <span id="C92">{{ solvedPuzzle['C92']['value'] if solvedPuzzle and solvedPuzzle['C92']['value'] }}</span>
+          {% for value in failedValues['C92'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C93']['color'] }}">
+          <span id="C93">{{ solvedPuzzle['C93']['value'] if solvedPuzzle and solvedPuzzle['C93']['value'] }}</span>
+          {% for value in failedValues['C93'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C94']['color'] }}">
+          <span id="C94">{{ solvedPuzzle['C94']['value'] if solvedPuzzle and solvedPuzzle['C94']['value'] }}</span>
+          {% for value in failedValues['C94'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C95']['color'] }}">
+          <span id="C95">{{ solvedPuzzle['C95']['value'] if solvedPuzzle and solvedPuzzle['C95']['value'] }}</span>
+          {% for value in failedValues['C95'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C96']['color'] }}">
+          <span id="C96">{{ solvedPuzzle['C96']['value'] if solvedPuzzle and solvedPuzzle['C96']['value'] }}</span>
+          {% for value in failedValues['C96'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C97']['color'] }}">
+          <span id="C97">{{ solvedPuzzle['C97']['value'] if solvedPuzzle and solvedPuzzle['C97']['value'] }}</span>
+          {% for value in failedValues['C97'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C98']['color'] }}">
+          <span id="C98">{{ solvedPuzzle['C98']['value'] if solvedPuzzle and solvedPuzzle['C98']['value'] }}</span>
+          {% for value in failedValues['C98'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+        <td style="color:{{ solvedPuzzle['C99']['color'] }}">
+          <span id="C99">{{ solvedPuzzle['C99']['value'] if solvedPuzzle and solvedPuzzle['C99']['value'] }}</span>
+          {% for value in failedValues['C99'] %}
+          <span>, <s>{{ value }}</s></span>
+          {% endfor %}
+        </td>
+      </tr>
+    </table>
+  </div>
+  {% else %}
+  <h2>No Solution Found!!!</h2>
+  {% endif %}
+  {{ html(selectedPuzzle) | safe }}
+</body>
+
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Sudoku</title>
+  <link rel="icon" href="/static/sudoku_icon.png">
+  <link type="text/css" rel="stylesheet" href="/static/style.css" />
+  <script>
+    let puzzleData = JSON.parse('{{ stepByStepSolution | tojson }}');
+    let colorData = JSON.parse('{{ solvedPuzzleForColor | tojson }}');
+    let counter = -1;
+    function displayPuzzle() {
+      for (let i = 1; i < 10; i++) {
+        for (let j = 1; j < 10; j++) {
+          let htmlContent = [`<span name="C${i}${j}">${puzzleData[counter].hasOwnProperty(`C${i}${j}`) ? puzzleData[counter][`C${i}${j}`][0] : ''}</span>`]
+          if (puzzleData[counter].hasOwnProperty(`C${i}${j}`) && puzzleData[counter][`C${i}${j}`].length > 1) {
+            for (let k = 1; k < puzzleData[counter][`C${i}${j}`].length; k++) {
+              htmlContent.push(`<span>, <s>${ puzzleData[counter][`C${i}${j}`][k] }</s></span>`);
+            }
+          }
+          document.getElementById(`step_solution_C${i}${j}`).innerHTML = htmlContent.join('');
+          document.getElementById(`step_solution_C${i}${j}`).style.color = colorData[`C${i}${j}`]['color'];
+        }
+      }
+      if (counter == puzzleData.length-1) {
+        document.getElementById('next_step_btn').disabled = true;
+        document.getElementById('prev_step_btn').disabled = false;
+      } else if (counter == 0) {
+        document.getElementById('next_step_btn').disabled = false;
+        document.getElementById('prev_step_btn').disabled = true;
+      } else {
+        document.getElementById('next_step_btn').disabled = false;
+        document.getElementById('prev_step_btn').disabled = false;
+      }
+    }
+    function previousStep() {
+      if (counter > 0) {
+				counter--;
+			} else {
+				counter = puzzleData.length - 1;
+			}
+      displayPuzzle();
+    }
+    function nextStep() {
+      if (counter < puzzleData.length - 1) {
+				counter++;
+			} else {
+				counter = 0;
+			}
+			displayPuzzle();
+    }
+  </script>
+</head>
+
+<body class="text-align-center">
+  <h1>Sudoku Solver using Backtracking Search</h1>
+  <h2>Step by step solution</h2>
+  <form action="/" style="margin-bottom: 16px;">
+    <button type="submit" id="goback_homepage" name="goback_homepage" class="no-margin">Go Back to Home Page!</button>
+  </form>
+  <button id="prev_step_btn" class="no-margin" onclick="previousStep()">Previous</button>
+  <button id="next_step_btn" class="no-margin" onclick="nextStep()" style="margin-left: 16px !important;">Next</button>
+  <div class="text-align-webkit-center">
+    <table id="step_solution_table" class="margin-y-16px">
+      <tr>
+        <td id="step_solution_C11"></td>
+        <td id="step_solution_C12"></td>
+        <td id="step_solution_C13"></td>
+        <td id="step_solution_C14"></td>
+        <td id="step_solution_C15"></td>
+        <td id="step_solution_C16"></td>
+        <td id="step_solution_C17"></td>
+        <td id="step_solution_C18"></td>
+        <td id="step_solution_C19"></td>
+      </tr>
+      <tr>
+        <td id="step_solution_C21"></td>
+        <td id="step_solution_C22"></td>
+        <td id="step_solution_C23"></td>
+        <td id="step_solution_C24"></td>
+        <td id="step_solution_C25"></td>
+        <td id="step_solution_C26"></td>
+        <td id="step_solution_C27"></td>
+        <td id="step_solution_C28"></td>
+        <td id="step_solution_C29"></td>
+      </tr>
+      <tr>
+        <td id="step_solution_C31"></td>
+        <td id="step_solution_C32"></td>
+        <td id="step_solution_C33"></td>
+        <td id="step_solution_C34"></td>
+        <td id="step_solution_C35"></td>
+        <td id="step_solution_C36"></td>
+        <td id="step_solution_C37"></td>
+        <td id="step_solution_C38"></td>
+        <td id="step_solution_C39"></td>
+      </tr>
+      <tr>
+        <td id="step_solution_C41"></td>
+        <td id="step_solution_C42"></td>
+        <td id="step_solution_C43"></td>
+        <td id="step_solution_C44"></td>
+        <td id="step_solution_C45"></td>
+        <td id="step_solution_C46"></td>
+        <td id="step_solution_C47"></td>
+        <td id="step_solution_C48"></td>
+        <td id="step_solution_C49"></td>
+      </tr>
+      <tr>
+        <td id="step_solution_C51"></td>
+        <td id="step_solution_C52"></td>
+        <td id="step_solution_C53"></td>
+        <td id="step_solution_C54"></td>
+        <td id="step_solution_C55"></td>
+        <td id="step_solution_C56"></td>
+        <td id="step_solution_C57"></td>
+        <td id="step_solution_C58"></td>
+        <td id="step_solution_C59"></td>
+      </tr>
+      <tr>
+        <td id="step_solution_C61"></td>
+        <td id="step_solution_C62"></td>
+        <td id="step_solution_C63"></td>
+        <td id="step_solution_C64"></td>
+        <td id="step_solution_C65"></td>
+        <td id="step_solution_C66"></td>
+        <td id="step_solution_C67"></td>
+        <td id="step_solution_C68"></td>
+        <td id="step_solution_C69"></td>
+      </tr>
+      <tr>
+        <td id="step_solution_C71"></td>
+        <td id="step_solution_C72"></td>
+        <td id="step_solution_C73"></td>
+        <td id="step_solution_C74"></td>
+        <td id="step_solution_C75"></td>
+        <td id="step_solution_C76"></td>
+        <td id="step_solution_C77"></td>
+        <td id="step_solution_C78"></td>
+        <td id="step_solution_C79"></td>
+      </tr>
+      <tr>
+        <td id="step_solution_C81"></td>
+        <td id="step_solution_C82"></td>
+        <td id="step_solution_C83"></td>
+        <td id="step_solution_C84"></td>
+        <td id="step_solution_C85"></td>
+        <td id="step_solution_C86"></td>
+        <td id="step_solution_C87"></td>
+        <td id="step_solution_C88"></td>
+        <td id="step_solution_C89"></td>
+      </tr>
+      <tr>
+        <td id="step_solution_C91"></td>
+        <td id="step_solution_C92"></td>
+        <td id="step_solution_C93"></td>
+        <td id="step_solution_C94"></td>
+        <td id="step_solution_C95"></td>
+        <td id="step_solution_C96"></td>
+        <td id="step_solution_C97"></td>
+        <td id="step_solution_C98"></td>
+        <td id="step_solution_C99"></td>
+      </tr>
+    </table>
+  </div>
+</body>
+
+</html>

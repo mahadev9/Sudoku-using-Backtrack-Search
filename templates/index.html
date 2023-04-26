@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Sudoku</title>
+  <link rel="icon" href="/static/sudoku_icon.png">
+  <link type="text/css" rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body class="text-align-center">
+  <h1>Sudoku Solver using Backtracking Search</h1>
+  <div>
+    <form method="POST">
+      <select id="puzzlename" name="puzzlename" class="classic">
+        {% for name in puzzleNames %}
+        <option value="{{ name['value'] }}" {{ 'selected' if name['selected'] }}>{{ name['label'] if name['label'] else "Select Puzzle..." }}</option>
+        {% endfor %}
+      </select>
+      <button id="solve_btn" type="submit">Solve!</button>
+    </form>
+  </div>
+  <h3></h3>
+  {% if customPuzzleTable %}
+    {{ customPuzzleTable | safe }}
+  {% endif %}
+  {{ initialTable | safe }}
+  {{ solutionTable | safe }}
+</body>
+
+</html>

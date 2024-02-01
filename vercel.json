@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "backtrack_search.py", "use": "@vercel/python" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/backtrack_search.py" }
+  ]
+}
